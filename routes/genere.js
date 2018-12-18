@@ -1,6 +1,7 @@
 const express = require('express');
 const debug = require('debug')('app:genereRouter');
 const { Model, validate } = require('../model/genereModel');
+const auth = require('../middleware/auth');
 
 const genereRouter = express.Router();
 
@@ -12,7 +13,7 @@ genereRouter.get('/', async (req, res) => {
     debug(e.message);
   }
 });
-genereRouter.post('/', async (req, res) => {
+genereRouter.post('/', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error);
   let genere = new Model({ name: req.body.name });
@@ -20,7 +21,7 @@ genereRouter.post('/', async (req, res) => {
   return res.send(genere);
 });
 
-genereRouter.put('/:id', async (req, res) => {
+genereRouter.put('/:id', auth, async (req, res) => {
   const { id } = req.params;
 
   const result = await Model.updateOne({ _id: id }, {
@@ -32,7 +33,7 @@ genereRouter.put('/:id', async (req, res) => {
   return res.send(result);
 });
 
-genereRouter.delete('/:id', async (req, res) => {
+genereRouter.delete('/:id', auth, async (req, res) => {
   const { id } = req.params;
   const find = await Model.findByIdAndRemove({ _id: id });
   if (!find) return res.status(404).send("req id doesn't exist");
